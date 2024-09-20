@@ -1,0 +1,11 @@
+# Ignore Terraform files
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+*.tfstate*
+crash.log
+*.log
+.terraform.lock.hcl
+# Ignore credentials
+sa_key.json

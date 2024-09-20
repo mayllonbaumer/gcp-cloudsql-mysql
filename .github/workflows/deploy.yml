@@ -1,0 +1,59 @@
+name: Terraform Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Type the environment name that you want to deploy (dev, test ou prd)
+        required: false
+        default: dev
+env:
+  environment: ${{github.event.inputs.environment || 'dev'}}
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: ${{github.event.inputs.environment || 'dev'}}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.8.3
+  
+    - name:  Set Google Cloud Credentials
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{secrets.SA_KEY}}
+
+    - name: Configure Google Cloud credentials
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Terraform Init
+      run: terraform init
+  
+    - name: Terraform Plan 
+      run: terraform plan -var="project_id=${{vars.project_id}}" -out=tfplan.out
+
+    - name: Archive Terraform Plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan
+        path: tfplan.out
+
+    - name: Terraform Apply
+      run: |
+          terraform apply -auto-approve tfplan.out
+          terraform output -json > terraform_output.json
+
+    - name: Terraform Vars
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform_output.json
+        path: terraform_output.json

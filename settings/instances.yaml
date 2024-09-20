@@ -1,0 +1,10 @@
+instances:
+  - name: mentoria-lab 
+    tier: db-f1-micro
+    users:
+    - user: magno
+      ip: "72.14.201.111"
+    - user: mateus
+      ip: "72.14.201.111"
+    - user: rogerio
+      ip: "72.14.201.111"
